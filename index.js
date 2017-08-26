@@ -4,15 +4,8 @@ const request = require('request-promise');
 const Promise = require('bluebird');
 const moment = require('moment');
 
-const boardID = process.env.TRELLO_BOARD_ID
-
-const authParams = {
-  'key': process.env.TRELLO_KEY,
-  'token': process.env.TRELLO_TOKEN
-};
-
 function getBoard() {
-  return request({ uri: 'https://api.trello.com/1/boards/' + boardID + '/lists', qs: authParams })
+  return _trelloRequest('boards/' + process.env.TRELLO_BOARD_ID + '/lists')
 }
 
 function findList(jsonLists) {
@@ -28,7 +21,7 @@ function findList(jsonLists) {
 }
 
 function getListCards(list) {
-  return request({ uri: 'https://api.trello.com/1/lists/' + list.id + '/cards', qs: authParams })
+  return _trelloRequest('lists/' + list.id + '/cards');
 }
 
 function printCards(cards) {
@@ -36,6 +29,16 @@ function printCards(cards) {
 
   JSON.parse(cards).forEach(function(card) {
     console.log(card.name + '  ' + moment(card.due).format('MM/DD/YYYY h:mm a'));
+  });
+}
+
+function _trelloRequest(urlFragment) {
+  return request({
+    uri: 'https://api.trello.com/1/' + urlFragment,
+    qs: {
+      'key': process.env.TRELLO_KEY,
+      'token': process.env.TRELLO_TOKEN
+    }
   });
 }
 
